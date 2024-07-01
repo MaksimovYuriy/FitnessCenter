@@ -7,17 +7,7 @@ import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { UserState, login } from '../redux/user';
 import { RootState } from '../redux/store';
 import { useNavigate } from 'react-router-dom';
-
-export interface regModel {
-    email: string,
-    phone: string,
-    password: string
-}
-
-export interface authModel {
-    email: string,
-    password: string
-}
+import { authModel, regModel } from '../models/models';
 
 function AuthRegForm() {
 

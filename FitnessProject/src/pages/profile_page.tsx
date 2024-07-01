@@ -6,6 +6,7 @@ import { useAppDispatch } from "../redux/hooks";
 import { logout } from "../redux/user";
 import { useNavigate } from "react-router-dom";
 import UserCard from "../components/usercard";
+import TimeTable from "../components/timetable";
 
 function ProfilePage() {
 
@@ -24,6 +25,7 @@ function ProfilePage() {
             <ResponsiveAppBar />
             <UserCard />
             <Logout />
+            <TimeTable/>
         </>
     )
 }
