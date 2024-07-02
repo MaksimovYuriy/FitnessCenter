@@ -1,10 +1,10 @@
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack, TableCell, TableHead, TableRow, formControlClasses } from "@mui/material";
+import { Box, Button, Container, Divider, FormControl, InputLabel, MenuItem, Select, Stack, TableCell, TableHead, TableRow, Typography, formControlClasses } from "@mui/material";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import axios from "axios";
 import { Dayjs } from 'dayjs';
 import { useEffect, useState } from "react";
-import { freeCoach, makeTrainModel } from "../models/models";
+import { freeCoach, makeTrainModel, nextTrainModel } from "../models/models";
 import { json } from "react-router-dom";
 import { useAppSelector } from "../redux/hooks";
 import { UserState } from "../redux/user";
@@ -13,7 +13,7 @@ import { RootState } from "../redux/store";
 function TimeTable() {
 
     const selector: UserState = useAppSelector((state: RootState) => state.user)
-    
+
     const [date, setDate] = useState<Dayjs | null>()
 
     const [update, setUpdate] = useState<boolean>(false)
@@ -25,10 +25,16 @@ function TimeTable() {
     const [selectCoach, setSelectCoach] = useState<freeCoach | null>()
     const [selectType, setSelectType] = useState<number>(0)
 
+    const [nextButton, setNextButton] = useState<boolean>(false)
+    const [nextTrain, setNextTrain] = useState<nextTrainModel>()
+
     useEffect(() => {
         let d = date?.format('YYYY-MM-DD')
-        axios.get("https://localhost:7141/API/SelectDate?date=" + d, {})
-            .then(response => setFreeCoaches(response.data))
+        axios.get("https://localhost:7141/API/SelectDate?date=" + d + "&userID=" + selector.Id, {})
+            .then(response => 
+                setFreeCoaches(response.data)
+            )
+            .catch(() => setFreeCoaches(null))
     }, [update])
 
     useEffect(() => {
@@ -45,10 +51,22 @@ function TimeTable() {
 
     useEffect(() => {
         let d = date?.format('YYYY-MM-DD')
-        let makeTrainData: makeTrainModel = {date: d!, user_id: selector.Id, coach_id: selectCoach?.id!}
+        let makeTrainData: makeTrainModel = { date: d!, user_id: selector.Id, coach_id: selectCoach?.id! }
         axios.post("https://localhost:7141/API/MakeTrain", makeTrainData, {})
-        .then(response => console.log(response))
+            .then(response => console.log(response))
     }, [makeTrain])
+
+    useEffect(() => {
+        axios.get("https://localhost:7141/API/NextTrain?userId=" + selector.Id, {})
+            .then((response) => {
+                if (response.status == 200) {
+                    setNextTrain(response.data)
+                }
+                else {
+                    console.log("NotFound net train")
+                }
+            })
+    }, [nextButton])
 
     return (
         <>
@@ -69,6 +87,19 @@ function TimeTable() {
             </Box>
 
             <Stack spacing={2}>
+                <Box
+                    sx={{
+                        marginTop: 8,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                    }}
+                >
+                    <Typography component="h1" variant="h5">
+                        Запись на тренировку
+                    </Typography>
+                </Box>
+
                 <FormControl fullWidth>
                     <InputLabel id="coach-select">Свободные тренеры</InputLabel>
                     <Select
@@ -132,6 +163,57 @@ function TimeTable() {
                 >
                     Записаться
                 </Button>
+            </Stack>
+
+            <Stack spacing={2}>
+                <Box
+                    sx={{
+                        marginTop: 8,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                    }}
+                >
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        sx={{ mt: 3, mb: 2 }}
+                        onClick={() => setNextButton(!nextButton)}
+                    >
+                        Показать следующую тренировку
+                    </Button>
+                </Box>
+                <Container>
+                    <Typography component="h1" variant="h5">
+                        Дата
+                    </Typography>
+                    <Typography component="h1" variant="h5">
+                        {nextTrain?.date}
+                    </Typography>
+                </Container>
+
+                <Divider orientation="horizontal" flexItem />
+
+                <Container>
+                    <Typography component="h1" variant="h5">
+                        Тренер
+                    </Typography>
+                    <Typography component="h1" variant="h5">
+                        {nextTrain?.coach}
+                    </Typography>
+                </Container>
+
+                <Divider orientation="horizontal" flexItem />
+
+                <Container>
+                    <Typography component="h1" variant="h5">
+                        Направление
+                    </Typography>
+                    <Typography component="h1" variant="h5">
+                        {nextTrain?.type}
+                    </Typography>
+                </Container>
             </Stack>
         </>
     )

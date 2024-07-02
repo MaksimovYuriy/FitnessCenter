@@ -32,3 +32,9 @@ export interface makeTrainModel {
     user_id: number,
     coach_id: number
 }
+
+export interface nextTrainModel {
+    date: string,
+    coach: string,
+    type: string
+}

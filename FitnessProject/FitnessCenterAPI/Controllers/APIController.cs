@@ -136,18 +136,26 @@ namespace FitnessCenterAPI.Controllers
         }
 
         [HttpGet("SelectDate")]
-        public IResult SelectDate(string date)
+        public IResult SelectDate(string date, int userID)
         {
             DateOnly targetDate = DateOnly.Parse(date);
 
-            int[] coaches = _context.Coaches.Select(p => p.Id).ToArray();
-            int[] uniqCoaches = _context.Timetables.Where(p => p.Date == targetDate).Select(p => p.CoachId).Distinct().ToArray();
-            
-            coaches = coaches.Except(uniqCoaches).ToArray();
+            Timetable? timetable = _context.Timetables.FirstOrDefault(p => p.UserId == userID && p.Date == targetDate);
+            if(timetable == null)
+            {
+                int[] coaches = _context.Coaches.Select(p => p.Id).ToArray();
+                int[] uniqCoaches = _context.Timetables.Where(p => p.Date == targetDate).Select(p => p.CoachId).Distinct().ToArray();
 
-            Coach[] result = _context.Coaches.Where(p => coaches.Contains(p.Id)).ToArray();
+                coaches = coaches.Except(uniqCoaches).ToArray();
 
-            return Results.Json(result);
+                Coach[] result = _context.Coaches.Where(p => coaches.Contains(p.Id)).ToArray();
+
+                return Results.Json(result);
+            }
+            else
+            {
+                return Results.NotFound("Train on this day is already exist!");
+            }
         }
 
         [HttpPost("MakeTrain")]
@@ -161,6 +169,31 @@ namespace FitnessCenterAPI.Controllers
             _context.Timetables.Add(t);
             _context.SaveChanges();
             return Results.Json(t);
+        }
+
+        [HttpGet("NextTrain")]
+        public IResult NextTrain(int userId)
+        {
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+            Timetable[]? allTrains = _context.Timetables.Where(p => p.UserId == userId && p.Date >= today)
+                .OrderBy(p => p.Date).ToArray();
+            if (allTrains.Any())
+            {
+                NextTrainModel ntm = new NextTrainModel();
+
+                Coach coach = _context.Coaches.FirstOrDefault(p => p.Id == allTrains[0].CoachId)!;
+                TypesCoach type = _context.TypesCoaches.FirstOrDefault(p => p.Id == coach.TypeId)!;
+
+                ntm.date = allTrains[0].Date.ToString("dd/MM/yyyy");
+                ntm.coach = coach.Name + " " + coach.Surname;
+                ntm.type = type.Name;
+
+                return Results.Ok(ntm);
+            }
+            else
+            {
+                return Results.NotFound();
+            }
         }
     }
 }
