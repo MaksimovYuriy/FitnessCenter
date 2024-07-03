@@ -104,6 +104,7 @@ namespace FitnessCenterAPI.Controllers
                 target.Email = change.email;
                 target.Phone = change.phone;
                 target.GenderId = change.genderID;
+                target.Age = change.age;
                 _context.SaveChanges();
 
                 string[] tokens = JwtCreator.GetTokens(target, _context);
@@ -117,6 +118,7 @@ namespace FitnessCenterAPI.Controllers
             {
                 if (JwtCreator.ValidateToken(change.jwtR))
                 {
+                    target.Age = change.age;
                     target.Name = change.name;
                     target.Surname = change.surname;
                     target.Email = change.email;

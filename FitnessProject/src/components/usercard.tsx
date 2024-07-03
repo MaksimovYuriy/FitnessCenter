@@ -15,13 +15,14 @@ function UserCard() {
     useEffect(() => {
         let changeData: changeModel = {
             jwtA: localStorage.getItem("AToken")!, jwtR: localStorage.getItem("RToken")!,
-            id: selector.Id, name: nameState, surname: surnameState, email: emailState,
+            id: selector.Id, age: ageState, name: nameState, surname: surnameState, email: emailState,
             phone: phoneState, genderID: genderIdState
         }
         axios.put("https://localhost:7141/API/ChangeUser", changeData, {})
             .then(response => console.log(response))
     }, [confirmChangeState])
 
+    const [ageState, ageSetState] = useState<string>(selector.Age!.toString())
     const [nameState, nameSetState] = useState<string>(selector.Name ?? "")
     const [surnameState, surnameSetState] = useState<string>(selector.Surname ?? "")
     const [emailState, emailSetState] = useState<string>(selector.Email ?? "")
@@ -71,6 +72,21 @@ function UserCard() {
                                     size="small"
                                     defaultValue={selector.Email}
                                     onChange={(e) => emailSetState(e.target.value)}
+                                />
+                            }
+                        </p>
+
+                        <p>
+                            Возраст
+                            {changeState == false ?
+                                <p className="item_info_value">{selector.Age}</p>
+                                :
+                                <TextField
+                                    type="text"
+                                    color="primary"
+                                    size="small"
+                                    defaultValue={selector.Age}
+                                    onChange={(e) => ageSetState(e.target.value)}
                                 />
                             }
                         </p>

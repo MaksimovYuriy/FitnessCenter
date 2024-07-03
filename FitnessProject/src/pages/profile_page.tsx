@@ -7,6 +7,8 @@ import { logout } from "../redux/user";
 import { useNavigate } from "react-router-dom";
 import UserCard from "../components/usercard";
 import TimeTable from "../components/timetable";
+import Calculator from "../components/calculator";
+import { Stack } from "@mui/material";
 
 function ProfilePage() {
 
@@ -21,12 +23,13 @@ function ProfilePage() {
     }, [])
 
     return (
-        <>
+        <Stack spacing={2}>
             <ResponsiveAppBar />
             <UserCard />
             <Logout />
             <TimeTable/>
-        </>
+            <Calculator/>
+        </Stack>
     )
 }
 

@@ -13,6 +13,7 @@ export interface changeModel {
     jwtA: string,
     jwtR: string,
     id: number,
+    age: string,
     name: string,
     surname: string,
     email: string,
