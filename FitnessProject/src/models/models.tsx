@@ -39,3 +39,15 @@ export interface nextTrainModel {
     coach: string,
     type: string
 }
+
+export interface bodytestModel {
+    userId: number,
+    weight: number,
+    fat: number
+}
+
+export interface chartDataModel {
+    date: string,
+    weight: number,
+    fat: number
+}

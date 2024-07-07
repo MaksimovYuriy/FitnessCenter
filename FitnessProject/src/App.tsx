@@ -8,6 +8,9 @@ import MainPage from './pages/main_page';
 import ProfilePage from './pages/profile_page';
 import { useAppDispatch } from './redux/hooks';
 import { login } from './redux/user';
+import ProfilePageTimetable from './pages/profile_page_timetable';
+import ProfilePageCalculator from './pages/profile_page_calculator';
+import ProfilePageBodytest from './pages/profile_page_bodytest';
 
 
 function App() {
@@ -27,6 +30,9 @@ function App() {
         <Route path="/" element={<Navigate to="/home" />} />
         <Route path="/home" element={<MainPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/timetable" element={<ProfilePageTimetable/>}/>
+        <Route path="/profile/calculator" element={<ProfilePageCalculator/>}/>
+        <Route path="/profile/bodytest" element={<ProfilePageBodytest/>}/>
       </Routes>
     </BrowserRouter>
   )

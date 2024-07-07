@@ -32,6 +32,7 @@ namespace FitnessCenterAPI.Controllers
             newUser.Password = hashPassword;
             newUser.Phone = data.phone;
             newUser.Scores = 0;
+            newUser.GenderId = 0;
 
             _context.Users.Add(newUser);
             _context.SaveChanges();
@@ -196,6 +197,51 @@ namespace FitnessCenterAPI.Controllers
             {
                 return Results.NotFound();
             }
+        }
+
+        [HttpPost("AddBodytest")]
+        public IResult AddBodytest([FromBody] BodytestModel result)
+        {
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+
+            Test? check = _context.Tests.FirstOrDefault(p => p.UserId == result.userId && p.Date == today);
+            if(check == null)
+            {
+                Test test = new Test();
+
+                test.UserId = result.userId;
+                test.Date = today;
+                test.Weight = result.weight;
+                test.FatPercentage = result.fat;
+
+                _context.Tests.Add(test);
+                _context.SaveChanges();
+
+                return Results.Ok();
+            }
+            else
+            {
+                return Results.NotFound();
+            }
+        }
+
+        [HttpGet("GetBodytest")]
+        public IResult GetBodytest(int userId)
+        {
+            Test[]? tests = _context.Tests.Where(p => p.UserId == userId).OrderBy(p => p.Date).ToArray();
+
+            ChartDataModel[] cdm = new ChartDataModel[tests.Length];
+
+            for(int i = 0; i < tests.Length; i++)
+            {
+                ChartDataModel test = new ChartDataModel();
+                test.date = tests[i].Date.ToString("d M yyyy");
+                test.weight = tests[i].Weight;
+                test.fat = tests[i].FatPercentage;
+                cdm[i] = test;
+            }
+
+            return Results.Json(cdm);
         }
     }
 }

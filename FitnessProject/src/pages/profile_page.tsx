@@ -9,6 +9,8 @@ import UserCard from "../components/usercard";
 import TimeTable from "../components/timetable";
 import Calculator from "../components/calculator";
 import { Stack } from "@mui/material";
+import Bodytest from "../components/bodytest";
+import ProfileNavbar from "../components/profile_navbar";
 
 function ProfilePage() {
 
@@ -25,10 +27,9 @@ function ProfilePage() {
     return (
         <Stack spacing={2}>
             <ResponsiveAppBar />
+            <ProfileNavbar />
             <UserCard />
             <Logout />
-            <TimeTable/>
-            <Calculator/>
         </Stack>
     )
 }

@@ -1,10 +1,11 @@
-import { Button, Grid, TextField, Typography } from "@mui/material"
+import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react"
 import { UserState } from "../redux/user"
 import { useAppSelector } from "../redux/hooks"
 import { RootState } from "../redux/store"
 import axios from "axios"
 import { changeModel } from "../models/models"
+import { genders } from "../models/datasets"
 
 function UserCard() {
 
@@ -113,15 +114,28 @@ function UserCard() {
                         <p>
                             Пол
                             {changeState == false ?
-                                <p className="item_info_value">{selector.GenderID}</p>
+                                <p className="item_info_value">{genders[selector.GenderID!]}</p>
                                 :
-                                <TextField
-                                    type="text"
-                                    color="primary"
-                                    size="small"
-                                    defaultValue={selector.GenderID}
-                                    onChange={(e) => genderIdSetState(e.target.value)}
-                                />
+                                <FormControl fullWidth>
+                                    <InputLabel id="gender">Пол</InputLabel>
+                                    <Select
+                                        labelId="gender"
+                                        id="gender"
+                                        label="Пол"
+                                        defaultValue={genders[selector.GenderID!]}
+                                        onChange={(e) => genderIdSetState(genders.indexOf(e.target.value).toString())}
+                                    >
+
+                                        <MenuItem key={1} value={genders[1]}>
+                                            {genders[1]}
+                                        </MenuItem>
+
+                                        <MenuItem key={2} value={genders[2]}>
+                                            {genders[2]}
+                                        </MenuItem>
+
+                                    </Select>
+                                </FormControl>
                             }
                         </p>
                     </Typography>
