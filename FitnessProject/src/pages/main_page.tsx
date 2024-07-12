@@ -4,9 +4,11 @@ import navbar from "../components/navbar";
 import ResponsiveAppBar from "../components/navbar";
 import AuthRegForm from "../components/auth";
 import { Stack } from "@mui/material";
+import { useEffect } from "react";
+import { login } from "../redux/user";
+import { useAppDispatch } from "../redux/hooks";
 
 function MainPage() {
-
     return (
         <Stack spacing={2} alignItems={"center"}>
             <ResponsiveAppBar/>
@@ -15,4 +17,4 @@ function MainPage() {
     )
 }
 
-export default MainPage;
+export default MainPage

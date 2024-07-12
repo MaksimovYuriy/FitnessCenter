@@ -18,7 +18,8 @@ export interface changeModel {
     surname: string,
     email: string,
     phone: string,
-    genderID: string
+    genderID: string,
+    scores: string
 }
 
 export interface freeCoach {
@@ -50,4 +51,34 @@ export interface chartDataModel {
     date: string,
     weight: number,
     fat: number
+}
+
+export interface addBonusModel {
+    userId: number,
+    scores: number
+}
+
+export interface getLoyaltyModel {
+    id: number,
+    name: string,
+    description: string
+}
+
+export interface getSubModel {
+    id: number,
+    name: string,
+    description: string,
+    price: number
+}
+
+export interface setSubModel {
+    userId: number,
+    subId: number,
+    clubId: number
+}
+
+export interface getClubModel {
+    id: number,
+    name: string,
+    description: string
 }

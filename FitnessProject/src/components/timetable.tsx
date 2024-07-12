@@ -5,14 +5,17 @@ import axios from "axios";
 import { Dayjs } from 'dayjs';
 import { useEffect, useState } from "react";
 import { freeCoach, makeTrainModel, nextTrainModel } from "../models/models";
-import { json } from "react-router-dom";
-import { useAppSelector } from "../redux/hooks";
-import { UserState } from "../redux/user";
+import { json, useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { logout, UserState } from "../redux/user";
 import { RootState } from "../redux/store";
+import { useDispatch } from "react-redux";
 
 function TimeTable() {
 
     const selector: UserState = useAppSelector((state: RootState) => state.user)
+    const dispatch = useAppDispatch()
+    const navigate = useNavigate()
 
     const [date, setDate] = useState<Dayjs | null>()
 
@@ -28,13 +31,17 @@ function TimeTable() {
     const [nextButton, setNextButton] = useState<boolean>(false)
     const [nextTrain, setNextTrain] = useState<nextTrainModel>()
 
+    const [baseFreeTypes, setBaseFreeTypes] = useState<number[] | null>()
+    const [baseFreeCoaches, setBaseFreeCoaches] = useState<freeCoach[] | null>()
+
     useEffect(() => {
         let d = date?.format('YYYY-MM-DD')
         axios.get("https://localhost:7141/API/SelectDate?date=" + d + "&userID=" + selector.Id, {})
-            .then(response => 
+            .then(response => {
                 setFreeCoaches(response.data)
-            )
-            .catch(() => setFreeCoaches(null))
+                setBaseFreeCoaches(response.data)
+            })
+            .catch(() => setFreeCoaches(undefined))
     }, [update])
 
     useEffect(() => {
@@ -46,6 +53,7 @@ function TimeTable() {
                 }
             }
             setFreeTypes(array)
+            setBaseFreeTypes(array)
         }
     }, [freeCoaches])
 
@@ -54,6 +62,10 @@ function TimeTable() {
         let makeTrainData: makeTrainModel = { date: d!, user_id: selector.Id, coach_id: selectCoach?.id! }
         axios.post("https://localhost:7141/API/MakeTrain", makeTrainData, {})
             .then(response => console.log(response))
+            .catch(() => {
+                dispatch(logout())
+                navigate("/auth")
+            })
     }, [makeTrain])
 
     useEffect(() => {
@@ -153,6 +165,21 @@ function TimeTable() {
                         }
                     </Select>
                 </FormControl>
+
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2 }}
+                    onClick={() => {
+                        setFreeCoaches(baseFreeCoaches)
+                        setFreeTypes(baseFreeTypes)
+                        setSelectCoach(undefined)
+                        setSelectType(0)
+                    }}
+                >
+                    Сбросить
+                </Button>
 
                 <Button
                     type="submit"

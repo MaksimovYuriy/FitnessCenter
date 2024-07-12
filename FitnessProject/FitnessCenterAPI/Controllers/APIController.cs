@@ -105,6 +105,7 @@ namespace FitnessCenterAPI.Controllers
                 target.Email = change.email;
                 target.Phone = change.phone;
                 target.GenderId = change.genderID;
+                target.Scores = change.scores;
                 target.Age = change.age;
                 _context.SaveChanges();
 
@@ -125,6 +126,7 @@ namespace FitnessCenterAPI.Controllers
                     target.Email = change.email;
                     target.Phone = change.phone;
                     target.GenderId = change.genderID;
+                    target.Scores = change.scores;
                     _context.SaveChanges();
 
                     string[] tokens = JwtCreator.GetTokens(target, _context);
@@ -164,14 +166,22 @@ namespace FitnessCenterAPI.Controllers
         [HttpPost("MakeTrain")]
         public IResult MakeTrain([FromBody] MakeTrainModel newTrain)
         {
-            Timetable t = new Timetable();
-            DateOnly targetDate = DateOnly.Parse(newTrain.date);
-            t.Date = targetDate;
-            t.UserId = newTrain.user_id;
-            t.CoachId = newTrain.coach_id;
-            _context.Timetables.Add(t);
-            _context.SaveChanges();
-            return Results.Json(t);
+            User? user = _context.Users.FirstOrDefault(p => p.Id == newTrain.user_id);
+            if(user != null && (JwtCreator.ValidateToken(user.AToken) || JwtCreator.ValidateToken(user.RToken)))
+            {
+                Timetable t = new Timetable();
+                DateOnly targetDate = DateOnly.Parse(newTrain.date);
+                t.Date = targetDate;
+                t.UserId = newTrain.user_id;
+                t.CoachId = newTrain.coach_id;
+                _context.Timetables.Add(t);
+                _context.SaveChanges();
+                return Results.Json(t);
+            }
+            else
+            {
+                return Results.Unauthorized();
+            }
         }
 
         [HttpGet("NextTrain")]
@@ -202,6 +212,12 @@ namespace FitnessCenterAPI.Controllers
         [HttpPost("AddBodytest")]
         public IResult AddBodytest([FromBody] BodytestModel result)
         {
+            User? user = _context.Users.FirstOrDefault(p => p.Id == result.userId);
+            if(!(user != null && (JwtCreator.ValidateToken(user.AToken) || JwtCreator.ValidateToken(user.RToken))))
+            {
+                return Results.Unauthorized();
+            }
+
             DateOnly today = DateOnly.FromDateTime(DateTime.Now);
 
             Test? check = _context.Tests.FirstOrDefault(p => p.UserId == result.userId && p.Date == today);
@@ -242,6 +258,69 @@ namespace FitnessCenterAPI.Controllers
             }
 
             return Results.Json(cdm);
+        }
+
+        [HttpGet("GetLoyalty")]
+        public IResult GetLoyalty(int userId, int scores)
+        {
+            User? target = _context.Users.FirstOrDefault(p => p.Id == userId);
+            Loyalty? loyalty = _context.Loyalties.Where(p => p.BonusScores <= scores)
+                .OrderByDescending(p => p.BonusScores)
+                .FirstOrDefault();
+
+            if(target != null && loyalty != null)
+            {
+                target.Loyalty = loyalty;
+                _context.SaveChanges();
+
+                GetLoyaltyModel glm = new GetLoyaltyModel
+                {
+                    id = loyalty.Id,
+                    name = loyalty.Name,
+                    description = loyalty.Description
+                };
+                return Results.Json(glm);
+            }
+            else
+            {
+                return Results.NotFound();
+            }
+        }
+
+        [HttpGet("GetSub")]
+        public IResult GetSubs()
+        {
+            return Results.Json(_context.Subs);
+        }
+
+        [HttpPut("SetSub")]
+        public IResult SetSub([FromBody] SetSubModel ssm)
+        {
+            User? target = _context.Users.FirstOrDefault(p => p.Id == ssm.userId);
+            if(target != null && ssm.subId != 0)
+            {
+                target.SubId = ssm.subId;
+                target.ClubId = ssm.clubId;
+                _context.SaveChanges();
+                return Results.Ok();
+            }
+            else
+            {
+                return Results.NotFound();
+            }
+        }
+
+        [HttpGet("GetClub")]
+        public IResult GetClub()
+        {
+            return Results.Json(_context.Clubs);
+        }
+
+        [HttpGet("UserClub")]
+        public IResult UserClub(int clubId)
+        {
+            Club? club = _context.Clubs.FirstOrDefault(p => p.Id == clubId);
+            return Results.Json(club);
         }
     }
 }

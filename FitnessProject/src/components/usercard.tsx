@@ -1,24 +1,27 @@
-import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material"
+import { Button, FormControl, Grid, InputLabel, MenuItem, Select, stepButtonClasses, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react"
-import { UserState } from "../redux/user"
-import { useAppSelector } from "../redux/hooks"
+import { loyalty, UserState } from "../redux/user"
+import { useAppDispatch, useAppSelector } from "../redux/hooks"
 import { RootState } from "../redux/store"
 import axios from "axios"
-import { changeModel } from "../models/models"
-import { genders } from "../models/datasets"
+import { addBonusModel, changeModel, getClubModel, getLoyaltyModel, getSubModel } from "../models/models"
+import { clubs, genders, subs } from "../models/datasets"
 
 function UserCard() {
 
     const [changeState, changeSetState] = useState<boolean>(false)
     const [confirmChangeState, confirmChangeSetState] = useState<boolean>(false)
+    const [updateLoyalty, setUpdateLoyalty] = useState<boolean>(false)
     const selector: UserState = useAppSelector((state: RootState) => state.user)
+    const dispatch = useAppDispatch()
 
     useEffect(() => {
         let changeData: changeModel = {
             jwtA: localStorage.getItem("AToken")!, jwtR: localStorage.getItem("RToken")!,
             id: selector.Id, age: ageState, name: nameState, surname: surnameState, email: emailState,
-            phone: phoneState, genderID: genderIdState
+            phone: phoneState, genderID: genderIdState, scores: scores
         }
+        console.log(changeData)
         axios.put("https://localhost:7141/API/ChangeUser", changeData, {})
             .then(response => console.log(response))
     }, [confirmChangeState])
@@ -29,6 +32,15 @@ function UserCard() {
     const [emailState, emailSetState] = useState<string>(selector.Email ?? "")
     const [phoneState, phoneSetState] = useState<string>(selector.Phone ?? "")
     const [genderIdState, genderIdSetState] = useState<string>(selector.GenderID!.toString())
+    const [scores, setScores] = useState<string>(selector.Scores.toString())
+
+    useEffect(() => {
+        axios.get("https://localhost:7141/API/GetLoyalty?userId=" + selector.Id + "&scores=" + selector.Scores)
+            .then(response => {
+                let data: getLoyaltyModel = response.data
+                dispatch(loyalty(data.id))
+            })
+    }, [updateLoyalty])
 
     return (
         <>
@@ -144,31 +156,13 @@ function UserCard() {
                 <Grid item xs={3}>
                     <Typography align="center">
                         <p>
-                            Уровень программа лояльности
-                            {changeState == false ?
-                                <p className="item_info_value">{selector.LoyaltyID}</p>
-                                :
-                                <TextField
-                                    type="text"
-                                    color="primary"
-                                    size="small"
-                                    defaultValue={selector.LoyaltyID}
-                                />
-                            }
+                            Уровень программы лояльности
+                            <p className="item_info_value">{selector.LoyaltyID}</p>
                         </p>
 
                         <p>
                             Бонусы
-                            {changeState == false ?
-                                <p className="item_info_value">{selector.Scores}</p>
-                                :
-                                <TextField
-                                    type="text"
-                                    color="primary"
-                                    size="small"
-                                    defaultValue={selector.Scores}
-                                />
-                            }
+                            <p className="item_info_value">{selector.Scores}</p>
                         </p>
                     </Typography>
                 </Grid>
@@ -177,30 +171,12 @@ function UserCard() {
                     <Typography align="center">
                         <p>
                             Абонемент
-                            {changeState == false ?
-                                <p className="item_info_value">{selector.SubID}</p>
-                                :
-                                <TextField
-                                    type="text"
-                                    color="primary"
-                                    size="small"
-                                    defaultValue={selector.SubID}
-                                />
-                            }
+                            <p className="item_info_value">{subs[selector.SubID]}</p>
                         </p>
 
                         <p>
                             Клуб
-                            {changeState == false ?
-                                <p className="item_info_value">{selector.ClubID}</p>
-                                :
-                                <TextField
-                                    type="text"
-                                    color="primary"
-                                    size="small"
-                                    defaultValue={selector.ClubID}
-                                />
-                            }
+                            <p className="item_info_value">{clubs[selector.ClubID]}</p>
                         </p>
                     </Typography>
                 </Grid>

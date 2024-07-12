@@ -15,6 +15,14 @@ function AuthRegForm() {
     const selector: UserState = useAppSelector((state: RootState) => state.user)
     const navigate = useNavigate()
 
+    useEffect(() => {
+        if (localStorage.getItem("AToken") != null && localStorage.getItem("AToken") != undefined) {
+          let data: string = localStorage.getItem("AToken")!
+          dispatch(login(data))
+          navigate("/profile")
+        }
+      }, [])
+
     const [accountState, accountSetState] = useState<boolean>(true)
 
     const [registrationState, registrationSetState] = useState<boolean>(false);

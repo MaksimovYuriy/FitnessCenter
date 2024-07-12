@@ -8,8 +8,12 @@ namespace FitnessCenterAPI.Services
     public static class JwtCreator
     {
 
-        public static bool ValidateToken(string token)
+        public static bool ValidateToken(string? token)
         {
+            if (token == null)
+            {
+                return false;
+            }
             var handler = new JwtSecurityTokenHandler();
             var jwt = handler.ReadJwtToken(token);
             var claim = jwt.Claims.First(claim => claim.Type == "exp");

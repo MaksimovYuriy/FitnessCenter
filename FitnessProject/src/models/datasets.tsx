@@ -1,5 +1,9 @@
 export const genders = ["Скрыт", "М", "Ж"]
 
+export const clubs = ["Нет", "Клуб1", "Клуб2", "Клуб3"]
+
+export const subs = ["Нет", "Лайт", "Стандарт", "Максимум"]
+
 export const activities = ["Очень низкая", "Низкая", "Средняя", "Высокая", "Очень высокая"]
 
 export const dates = [

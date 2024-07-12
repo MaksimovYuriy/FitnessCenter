@@ -11,6 +11,7 @@ import Calculator from "../components/calculator";
 import { Stack } from "@mui/material";
 import Bodytest from "../components/bodytest";
 import ProfileNavbar from "../components/profile_navbar";
+import Subs from "../components/subs";
 
 function ProfilePage() {
 
@@ -20,7 +21,7 @@ function ProfilePage() {
     useEffect(() => {
         if (localStorage.getItem("AToken") == null || localStorage.getItem("AToken") == undefined) {
             dispatch(logout())
-            navigate("/")
+            navigate("/auth")
         }
     }, [])
 

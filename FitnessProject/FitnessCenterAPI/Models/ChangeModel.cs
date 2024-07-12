@@ -11,5 +11,6 @@
         public string email { get; set; }
         public string phone { get; set; }
         public int genderID { get; set; }
+        public int scores { get; set; }
     }
 }

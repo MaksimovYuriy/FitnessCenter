@@ -3,16 +3,16 @@ import { jwtDecode } from 'jwt-decode'
 
 export interface UserState {
   Id : number
-  Name : string | null
-  Surname : string | null
-  Age : number | null
+  Name : string
+  Surname : string
+  Age : number
   Email : string
   Phone : string
-  GenderID : number | null
-  LoyaltyID : number | null
-  Scores : number | null
-  SubID : number | null
-  ClubID : number | null
+  GenderID : number
+  LoyaltyID : number
+  Scores : number
+  SubID : number
+  ClubID : number
 }
 
 const initialState: UserState = {
@@ -43,7 +43,7 @@ export const userSlice = createSlice({
       state.Phone = jwt_data.Phone
       state.GenderID = jwt_data.GenderID
       state.LoyaltyID = jwt_data.LoyaltyID
-      state.Scores = jwt_data.Scores
+      state.Scores = Number(jwt_data.Scores)
       state.SubID = jwt_data.SubID
       state.ClubID = jwt_data.ClubID
     },
@@ -51,8 +51,16 @@ export const userSlice = createSlice({
     logout: (state) => {
       state = initialState
       localStorage.clear()
+    },
+
+    bonus: (state, action: PayloadAction<number>) => {
+      state.Scores += action.payload
+    },
+
+    loyalty: (state, action: PayloadAction<number>) => {
+      state.LoyaltyID = action.payload
     }
   }
 })
 
-export const { login, logout } = userSlice.actions
+export const { login, logout, bonus, loyalty } = userSlice.actions

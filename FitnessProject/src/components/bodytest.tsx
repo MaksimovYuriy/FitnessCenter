@@ -3,17 +3,20 @@ import { Box, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 import { isIntegerOrFractionalNumber } from "../scripts/regExp";
 import { bodytestModel, chartDataModel } from "../models/models";
-import { UserState } from "../redux/user";
-import { useAppSelector } from "../redux/hooks";
+import { bonus, logout, UserState } from "../redux/user";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { RootState } from "../redux/store";
 import axios from "axios";
 import { LineChart } from '@mui/x-charts/LineChart';
 import { dates, series } from "../models/datasets";
 import { ChartParse } from "../scripts/chartParse";
+import { useNavigate } from "react-router-dom";
 
 function Bodytest() {
 
     const selector: UserState = useAppSelector((state: RootState) => state.user)
+    const navigate = useNavigate()
+    const dispatch = useAppDispatch()
 
     const [currentWeight, setCurrentWeight] = useState<string>("")
     const [currentFat, setCurrentFat] = useState<string>("")
@@ -33,8 +36,28 @@ function Bodytest() {
                 fat: Number(currentFat)
             }
             axios.post("https://localhost:7141/API/AddBodytest", data, {})
-                .then(response => console.log(response))
-                .catch(() => alert("Сегодня вы уже зафиксировали данные!"))
+                .then(response => {
+                    if (response.status == 401) {
+                        dispatch(logout())
+                        navigate("/auth")
+                    }
+                    else {
+                        console.log(response);
+                        dispatch(bonus(10));
+                        alert("Вы получили 10 баллов!");
+                        return response
+                    }
+                }
+                )
+                .catch((error) => {
+                    if(error.response.status == 401){
+                        dispatch(logout())
+                        alert("Требуется повторная авторизация!")
+                    }
+                    else{
+                        alert("Вы сегодня уже фиксировали результаты!")
+                    }
+                })
         }
         else {
             console.log("Числа через точку")
@@ -94,7 +117,7 @@ function Bodytest() {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
-                onClick={() => setResultButton(!resultButton)}
+                onClick={() => { setResultButton(!resultButton) }}
             >
                 Добавить результат
             </Button>
